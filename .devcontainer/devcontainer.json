@@ -1,0 +1,23 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "containerUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "formulahendry.auto-close-tag",
+        "formulahendry.auto-rename-tag",
+        "mgmcdermott.vscode-language-babel",
+        "naumovs.color-highlight",
+        "HookyQR.JSDocTagComplete",
+        "dbaeumer.vscode-eslint",
+        "ritwickdey.LiveServer",
+        "ms-vsliveshare.vsliveshare",
+        "esbenp.prettier-vscode",
+        "mohsen1.prettify-json",
+        "richie5um2.vscode-sort-json",
+        "bradlc.vscode-tailwindcss",
+        "redhat.vscode-yaml"
+      ]
+    }
+  }
+}
