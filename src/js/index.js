@@ -1,7 +1,8 @@
 import '../css/style.css';
 
 import Phaser from 'phaser';
-import Game from './scenes/Game';
+import G1 from './scenes/Gesture1';
+import G2 from './scenes/Gesture2';
 
 export default new Phaser.Game({
   type: Phaser.AUTO,
@@ -13,5 +14,5 @@ export default new Phaser.Game({
       gravity: { y: 0 },
     },
   },
-  scene: Game,
+  scene: [G1, G2],
 });

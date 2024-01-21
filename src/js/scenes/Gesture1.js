@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 import HandTracking from './game/HandTracking';
 
-export default class Game extends Phaser.Scene {
+export default class G1 extends Phaser.Scene {
   handSprites = {};
   rectSprites = {};
 
   constructor() {
-    super('game');
+    super('G1');
     // init hand tracking
     this.handTracking = new HandTracking({ hands: 2 });
 
@@ -22,6 +22,15 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    // switch scenes
+    this.input.keyboard.once(
+      'keydown-SPACE',
+      () => {
+        this.scene.start('G2');
+      },
+      this,
+    );
+
     // bg
     this.add.image(400, 300, 'sky');
 
