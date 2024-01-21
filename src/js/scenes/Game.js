@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import HandTracking from './game/HandTracking';
 
 export default class Game extends Phaser.Scene {
+  handSprites = {};
+  rectSprites = {};
+
   constructor() {
     super('game');
     // init hand tracking
@@ -23,10 +26,12 @@ export default class Game extends Phaser.Scene {
     this.add.image(400, 300, 'sky');
 
     // left hand
-    this.leftHandSprite = createHandSprite.call(this, -150);
+    this.handSprites.handLeft = createHandSprite.call(this, -150);
+    this.rectSprites.handLeft = createRectangle.call(this, 0);
 
     // right hand
-    this.rightHandSprite = createHandSprite.call(this, 100);
+    this.handSprites.handRight = createHandSprite.call(this, 100);
+    this.rectSprites.handRight = createRectangle.call(this, 400);
 
     const lineLeft = new Phaser.Geom.Line(200, 50, 200, 500);
     const lineRight = new Phaser.Geom.Line(
@@ -35,7 +40,6 @@ export default class Game extends Phaser.Scene {
       this.width - 200,
       500,
     );
-    // const cursorRect = new Phaser.Geom.Rectangle(200, 200, 300, 200);
 
     const graphics = this.add.graphics({
       lineStyle: { width: 4, color: 0xaa00aa },
@@ -48,12 +52,16 @@ export default class Game extends Phaser.Scene {
     const trackedHands = this.handTracking.getHands(this.width, this.height);
     if (trackedHands.detected) {
       // update the left circle
-      updateHandPosition.call(this, this.leftHandSprite, trackedHands.handLeft);
+      updateHandPosition.call(
+        this,
+        this.handSprites.handLeft,
+        trackedHands.handLeft,
+      );
 
       // update the right circle
       updateHandPosition.call(
         this,
-        this.rightHandSprite,
+        this.handSprites.handRight,
         trackedHands.handRight,
       );
     }
@@ -61,10 +69,22 @@ export default class Game extends Phaser.Scene {
 }
 
 function handleGesture(hand) {
-  const sprite =
-    hand.handName === 'handLeft' ? this.leftHandSprite : this.rightHandSprite;
+  const sprite = this.handSprites[hand.handName];
 
-  sprite.fillColor = hand.gesture === 'Closed_Fist' ? 0xffff00 : 0xe4bfc8;
+  if (hand.gesture === 'Closed_Fist') {
+    sprite.fillColor = 0xffff00;
+    // sync rect and sphere's y-value
+    this.rectSprites[hand.handName].y = this.handSprites[hand.handName].y;
+  } else {
+    sprite.fillColor = 0xe4bfc8;
+  }
+}
+
+function createRectangle(xOffset) {
+  const rect = this.add.rectangle(200 + xOffset, 50, 10, 10, 0x0000ff);
+  this.physics.add.existing(rect);
+
+  return rect;
 }
 
 function createHandSprite(xOffset) {
