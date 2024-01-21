@@ -1,6 +1,7 @@
 import { FilesetResolver, GestureRecognizer } from '@mediapipe/tasks-vision';
 
 export default class HandTracking {
+  events = {};
   hands;
   videoId;
   videoEl;
@@ -35,6 +36,17 @@ export default class HandTracking {
       .catch(err => {
         console.error(err);
       });
+  }
+
+  on(eventName, fn) {
+    this.events[eventName] = this.events[eventName] || [];
+    this.events[eventName].push(fn);
+  }
+
+  emit(eventName, data) {
+    if (this.events[eventName]) {
+      this.events[eventName].forEach(fn => fn(data));
+    }
   }
 
   async #loadGestureRecognizer() {
@@ -119,12 +131,23 @@ export default class HandTracking {
         const gesture = trackingResultsRaw.gestures[index][0].categoryName;
 
         hands[handName] = {
+          handName,
           x: width - x * width || 0,
           y: y * height || 0,
           gesture,
           x_raw: x,
           y_raw: y,
         };
+
+        // Emit if gesture is "openFist"
+        if (
+          gesture === 'Closed_Fist' ||
+          gesture === 'Open_Palm' ||
+          gesture === 'Thumbs_Down' ||
+          gesture === 'Thumbs_Up'
+        ) {
+          this.emit('gestureDetected', hands[handName]);
+        }
       });
     } else {
       hands.detected = false;
