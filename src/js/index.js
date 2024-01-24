@@ -14,5 +14,5 @@ export default new Phaser.Game({
       gravity: { y: 0 },
     },
   },
-  scene: [G1, G2],
+  scene: [G2, G1],
 });

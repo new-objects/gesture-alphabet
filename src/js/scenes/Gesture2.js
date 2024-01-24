@@ -33,6 +33,46 @@ export default class G2 extends Phaser.Scene {
     // bg
     // this.add.image(400, 300, 'sky');
 
+    const graphics = this.add.graphics({
+      lineStyle: { width: 4, color: 0xaa00aa },
+    });
+
+    //  Without this the arc will appear closed when stroked
+    graphics.beginPath();
+
+    // arc (x, y, radius, startAngle, endAngle, anticlockwise)
+    graphics.arc(
+      550,
+      300,
+      90,
+      Phaser.Math.DegToRad(45),
+      Phaser.Math.DegToRad(315),
+      true,
+    );
+
+    //  Uncomment this to close the path before stroking
+    // graphics.closePath();
+
+    graphics.strokePath();
+
+    //  Without this the arc will appear closed when stroked
+    graphics.beginPath();
+
+    // arc (x, y, radius, startAngle, endAngle, anticlockwise)
+    graphics.arc(
+      200,
+      300,
+      90,
+      Phaser.Math.DegToRad(225),
+      Phaser.Math.DegToRad(135),
+      true,
+    );
+
+    //  Uncomment this to close the path before stroking
+    // graphics.closePath();
+
+    graphics.strokePath();
+
     // left hand
     this.handSprites.handLeft = createHandSprite.call(this, -150);
     this.rectSprites.handLeft = createRectangle.call(this, 0);
@@ -40,20 +80,6 @@ export default class G2 extends Phaser.Scene {
     // right hand
     this.handSprites.handRight = createHandSprite.call(this, 100);
     this.rectSprites.handRight = createRectangle.call(this, 400);
-
-    const lineLeft = new Phaser.Geom.Line(200, 50, 200, 500);
-    const lineRight = new Phaser.Geom.Line(
-      this.width - 200,
-      50,
-      this.width - 200,
-      500,
-    );
-
-    const graphics = this.add.graphics({
-      lineStyle: { width: 4, color: 0xaa00aa },
-    });
-    graphics.strokeLineShape(lineLeft);
-    graphics.strokeLineShape(lineRight);
   }
 
   update() {
@@ -93,6 +119,13 @@ function createRectangle(xOffset) {
   this.physics.add.existing(rect);
 
   return rect;
+}
+
+function moveRectangle(circle, currentPosition) {
+  // circle and currentPosition are 2D vector each
+  // create a angle between vector of circle and currentPosition and vector of circle and (circle.x + currentPostion.x, current.y)
+  // calculate the angle between those two vectors
+  // calculate the projection on the circle using the polar coordinates
 }
 
 function createHandSprite(xOffset) {
