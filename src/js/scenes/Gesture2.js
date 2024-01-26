@@ -4,6 +4,7 @@ import HandTracking from './game/HandTracking';
 export default class G2 extends Phaser.Scene {
   handSprites = {};
   rectSprites = {};
+  circles = {};
 
   constructor() {
     super('G2');
@@ -33,45 +34,13 @@ export default class G2 extends Phaser.Scene {
     // bg
     // this.add.image(400, 300, 'sky');
 
-    const graphics = this.add.graphics({
+    this.graphics = this.add.graphics({
       lineStyle: { width: 4, color: 0xaa00aa },
     });
 
-    //  Without this the arc will appear closed when stroked
-    graphics.beginPath();
-
     // arc (x, y, radius, startAngle, endAngle, anticlockwise)
-    graphics.arc(
-      550,
-      300,
-      90,
-      Phaser.Math.DegToRad(45),
-      Phaser.Math.DegToRad(315),
-      true,
-    );
-
-    //  Uncomment this to close the path before stroking
-    // graphics.closePath();
-
-    graphics.strokePath();
-
-    //  Without this the arc will appear closed when stroked
-    graphics.beginPath();
-
-    // arc (x, y, radius, startAngle, endAngle, anticlockwise)
-    graphics.arc(
-      200,
-      300,
-      90,
-      Phaser.Math.DegToRad(225),
-      Phaser.Math.DegToRad(135),
-      true,
-    );
-
-    //  Uncomment this to close the path before stroking
-    // graphics.closePath();
-
-    graphics.strokePath();
+    this.circles.handRight = createArc.call(this, 550, 300, 45, 315);
+    this.circles.handLeft = createArc.call(this, 200, 300, 225, 135);
 
     // left hand
     this.handSprites.handLeft = createHandSprite.call(this, -150);
@@ -103,15 +72,26 @@ export default class G2 extends Phaser.Scene {
 }
 
 function handleGesture(hand) {
-  const sprite = this.handSprites[hand.handName];
+  const handSprite = this.handSprites[hand.handName];
+  const rectSprite = this.rectSprites[hand.handName];
 
   if (hand.gesture === 'Closed_Fist') {
-    sprite.fillColor = 0xffff00;
-    // sync rect and sphere's y-value
-    this.rectSprites[hand.handName].y = this.handSprites[hand.handName].y;
+    handSprite.fillColor = 0xffff00;
+    // calculate x, y for the rectSprite
+    const v = mapToArc(this.circles[hand.handName], hand);
+    // add the circle offset to the vector
+    rectSprite.y = v.y + this.circles[hand.handName].y;
+    rectSprite.x = v.x + this.circles[hand.handName].x;
   } else {
-    sprite.fillColor = 0xe4bfc8;
+    handSprite.fillColor = 0xe4bfc8;
   }
+}
+
+function createArc(x, y, degStart, degEnd) {
+  const arc = this.add.arc(x, y, 90, degStart, degEnd, true);
+  arc.setStrokeStyle(2, 0xaa00aa);
+
+  return arc;
 }
 
 function createRectangle(xOffset) {
@@ -120,12 +100,23 @@ function createRectangle(xOffset) {
 
   return rect;
 }
+/**
+ * We calculate the vector between cirle center and hand position and scale it
+ * down by creating a unit vector multiplied by the radius
+ */
+function mapToArc(circle, handPosition) {
+  const v = new Phaser.Math.Vector2(
+    handPosition.x - circle.x,
+    handPosition.y - circle.y,
+  );
+  // create the unit vector (magnitude = 1)
+  v.normalize();
 
-function moveRectangle(circle, currentPosition) {
-  // circle and currentPosition are 2D vector each
-  // create a angle between vector of circle and currentPosition and vector of circle and (circle.x + currentPostion.x, current.y)
-  // calculate the angle between those two vectors
-  // calculate the projection on the circle using the polar coordinates
+  // scale it by radius
+  v.scale(circle.radius);
+  console.log(v.x, v.y);
+
+  return v;
 }
 
 function createHandSprite(xOffset) {
@@ -142,7 +133,7 @@ function createHandSprite(xOffset) {
   return circle;
 }
 
-function updateHandPosition(sprite, handData) {
+function updateHandPosition(sprite, handData, circle) {
   if (!handData) return;
 
   const { x, y } = handData;
